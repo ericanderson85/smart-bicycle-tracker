@@ -28,6 +28,17 @@ async function fetchData(url) {
   }
 }
 
+async function updateUI() {
+  const data = await fetchData("http://localhost:5001/");
+  if (!data) return;
+
+  document.getElementById("latitude").textContent = `Latitude: ${data.latitude}`;
+  document.getElementById("longitude").textContent = `Longitude: ${data.longitude}`;
+  document.getElementById("velocity").textContent = `Velocity: ${data.velocity}`;
+  document.getElementById("battery").textContent = `Battery: ${data.battery}`;
+  document.getElementById("connection-status").textContent = `Connection Status: ${data.connection_status}`;
+}
+
 async function updateMarkerLoop() {
   while (true) {
     const data = await fetchData(API_URL);
@@ -41,3 +52,5 @@ async function updateMarkerLoop() {
 }
 
 updateMarkerLoop();
+setInterval(updateUI, 1000); 
+
