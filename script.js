@@ -11,7 +11,16 @@ L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map
     '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-let marker = L.marker(INITIAL_COORDS).addTo(map);
+
+
+let marker = L.circleMarker(INITIAL_COORDS, {
+  radius: 8,          // size of dot
+  color: "black",     // border color
+  weight: 1,          // border thickness
+  fillColor: "#007AFF",  // inside color
+  fillOpacity: 1
+}).addTo(map);
+
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
