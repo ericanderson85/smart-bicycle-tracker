@@ -5,7 +5,7 @@ const INITIAL_ZOOM = 16;
 
 const map = L.map("map").setView(INITIAL_COORDS, INITIAL_ZOOM);
 
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
   maxZoom: 19,
   attribution:
     '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
