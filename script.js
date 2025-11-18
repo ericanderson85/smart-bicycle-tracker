@@ -2,8 +2,7 @@ const API_URL = "http://localhost:5001";
 const UPDATE_INTERVAL_MS = 1000;
 const INITIAL_ZOOM = 16;
 
-const MAP_TILES_URL =
-	"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}";
+const MAP_TILES_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}";
 
 const FALLBACK_COORDS = [42.3142, -71.042]; // fallback to umass boston coordinates if initial api call fails
 
@@ -38,10 +37,7 @@ async function update(marker) {
 	updateElementText("longitude", `Longitude: ${data.longitude}`);
 	updateElementText("velocity", `Velocity: ${data.velocity}`);
 	updateElementText("battery", `Battery: ${data.battery}`);
-	updateElementText(
-		"connection-status",
-		`Connection Status: ${data.connection_status}`
-	);
+	updateElementText("connection-status", `Connection Status: ${data.connection_status}`);
 }
 
 async function startMap() {
@@ -54,8 +50,7 @@ async function startMap() {
 	const map = L.map("map").setView(initial_coords, INITIAL_ZOOM);
 	L.tileLayer(MAP_TILES_URL, {
 		maxZoom: 19,
-		attribution:
-			'&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 	}).addTo(map);
 	L.control
 		.scale({
