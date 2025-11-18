@@ -21,6 +21,14 @@ let marker = L.circleMarker(INITIAL_COORDS, {
   fillOpacity: 1
 }).addTo(map);
 
+L.control.scale({
+  position: 'bottomright',
+  metric: false,
+  imperial: true,
+  maxWidth: 200,
+}).addTo(map);
+
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function fetchData(url) {
