@@ -1,20 +1,13 @@
 const API_URL = "http://localhost:5001";
 const UPDATE_INTERVAL_MS = 1000;
-const INITIAL_COORDS = [ 42.3142, -71.042 ];
 const INITIAL_ZOOM = 16;
-
-const map = L.map("map").setView(INITIAL_COORDS, INITIAL_ZOOM);
-
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-     maxZoom : 19,
-     attribution : '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
- }).addTo(map);
-
-let marker = L.marker(INITIAL_COORDS).addTo(map);
+const FALLBACK_COORDS = [ 42.3142, -71.042 ]; // fallback to umass boston coordinates if initial api call fails
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const updateElementText = (elementId, text) => document.getElementById(elementId).textContent = text;
+function updateElementText(elementId, text) {
+    const element = document.getElementById(elementId);
+    element.textContent = text;
+};
 
 async function fetchData(url) {
     try {
@@ -29,12 +22,12 @@ async function fetchData(url) {
     }
 }
 
-async function update() {
-    const data = await fetchData("http://localhost:5001/");
+async function update(marker) {
+    const data = await fetchData(API_URL);
     if (!data)
         return;
 
-    if (data?.latitude && data?.longitude) {
+    if (data.latitude != null && data.longitude != null) {
         marker.setLatLng([ data.latitude, data.longitude ]);
     }
 
@@ -45,4 +38,24 @@ async function update() {
     updateElementText("connection-status", `Connection Status: ${data.connection_status}`)
 }
 
-setInterval(update, 1000);
+async function startMap() {
+    const data = await fetchData(API_URL);
+    let initial_coords = FALLBACK_COORDS;
+    if (data?.latitude != null && data?.longitude != null) {
+        initial_coords = [ data.latitude, data.longitude ];
+    }
+
+    const map = L.map("map").setView(initial_coords, INITIAL_ZOOM);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+         maxZoom : 19,
+         attribution : '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+     }).addTo(map);
+
+    const marker = L.marker(initial_coords).addTo(map);
+
+    sleep(UPDATE_INTERVAL_MS); // Start by sleeping, we already fetched data and updated map
+    // Update the map every `UPDATE_INTERVAL_MS` ms
+    setInterval(() => update(marker), UPDATE_INTERVAL_MS);
+}
+
+startMap();
