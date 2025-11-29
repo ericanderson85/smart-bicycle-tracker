@@ -40,7 +40,7 @@ esptool --baud 460800 write-flash 0x1000 /path/to/firmware.bin
 5. Verify (should see blinking LED):
 
 ```bash
-mpremote fs cp firmware/esp32/blink.py :main.py
+mpremote fs cp test/blink.py :main.py
 mpremote reset
 ```
 
