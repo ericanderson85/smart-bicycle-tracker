@@ -1,15 +1,41 @@
+import machine
 import network
+import time
 import usocket as socket
 import ujson as json
-import time
-import machine
 
-# --- CONFIGURATION ---
-# WIFI_SSID = "YOUR_WIFI_NAME"
-# WIFI_PASSWORD = "YOUR_WIFI_PASSWORD"
-WIFI_SSID = "coppermoose"
-WIFI_PASSWORD = "5085432538"
-PORT = 5001
+ENV_PATH = ".env"
+
+
+def load_env(path=ENV_PATH):
+    """Parse a simple KEY=VALUE env file into a dict."""
+    env = {}
+    try:
+        with open(path) as env_file:
+            for raw_line in env_file:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                env[key.strip()] = value.strip()
+    except OSError:
+        raise RuntimeError("Missing .env file; cannot start firmware")
+    return env
+
+
+env = load_env()
+
+try:
+    WIFI_SSID = env["WIFI_SSID"]
+    WIFI_PASSWORD = env["WIFI_PASSWORD"]
+    PORT = int(env["API_PORT"])
+except KeyError as missing_key:
+    raise RuntimeError("Required environment value missing: {}".format(missing_key))
+except ValueError:
+    raise RuntimeError("API_PORT must be an integer")
+
+if not WIFI_SSID or not WIFI_PASSWORD:
+    raise RuntimeError("WIFI_SSID and WIFI_PASSWORD must be non-empty")
 
 # --- DATA ---
 SAMPLE_DATA = [
