@@ -57,6 +57,8 @@ async function update(marker, map) {
 	updateElementText("latitude", `Latitude: ${data.latitude}°`);
 	updateElementText("longitude", `Longitude: ${data.longitude}°`);
 	updateElementText("velocity", `Velocity: ${data.velocity} mph`);
+	updateElementText("satellites", `Satellites: ${data.satellites}`);
+	updateElementText("timestamp", `Timestamp: ${data.timestamp}`);
 }
 
 async function startMap() {

@@ -30,26 +30,30 @@ class GPSController:
         )
 
         self._state = {
-            "timestamp": None,
-            "date": None,
             "latitude": 0.0,
             "longitude": 0.0,
-            "altitude": 0.0,
-            "speed_mph": 0.0,
-            "satellites_used": 0,
+            "velocity": 0.0,
+            "satellites": 0,
+            "timestamp": 0,
         }
 
     def _update_state(self):
         lat_val, lat_dir = self._gps.latitude
         lon_val, lon_dir = self._gps.longitude
 
-        latitude = lat_val if lat_dir == "N" else -lat_val
-        longitude = lon_val if lon_dir == "E" else -lon_val
+        latitude: float = lat_val if lat_dir == "N" else -lat_val
+        longitude: float = lon_val if lon_dir == "E" else -lon_val
+
+        timestamp = self._gps.fix_time
+        if not isinstance(timestamp, int):
+            timestamp = 0
 
         self._state = {
             "latitude": latitude,
             "longitude": longitude,
-            "speed_mph": self._gps.speed[1],
+            "velocity": self._gps.speed[1],
+            "satellites": self._gps.satellites_in_use,
+            "timestamp": timestamp,
         }
 
     def get_data(self):

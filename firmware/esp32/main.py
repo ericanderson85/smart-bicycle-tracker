@@ -103,7 +103,9 @@ async def handle_client(reader: StreamReader, writer: StreamWriter):
                 response_data = {
                     "latitude": raw_gps.get("latitude", 0.0),
                     "longitude": raw_gps.get("longitude", 0.0),
-                    "velocity": raw_gps.get("speed_mph", 0),
+                    "velocity": raw_gps.get("velocity", 0.0),
+                    "satellites": raw_gps.get("satellites", 0),
+                    "timestamp": raw_gps.get("timestamp", 0),
                 }
 
                 response_body = ujson.dumps(response_data)
