@@ -36,19 +36,20 @@ async function fetchData(url) {
 	}
 }
 
-async function update(marker) {
+async function update(marker, map) {
 	const data = await fetchData(API_URL);
 	if (!data) return;
 
 	if (data.latitude != null && data.longitude != null) {
-		marker.setLatLng([data.latitude, data.longitude]);
+		const newPos = [data.latitude, data.longitude];
+		marker.setLatLng(newPos);
+		map.setView(newPos);
 	}
 
-	updateElementText("latitude", `Latitude: ${data.latitude}`);
-	updateElementText("longitude", `Longitude: ${data.longitude}`);
-	updateElementText("velocity", `Velocity: ${data.velocity}`);
+	updateElementText("latitude", `Latitude: ${data.latitude}°`);
+	updateElementText("longitude", `Longitude: ${data.longitude}°`);
+	updateElementText("velocity", `Velocity: ${data.velocity} mph`);
 	updateElementText("battery", `Battery: ${data.battery}`);
-	updateElementText("connection-status", `Connection Status: ${data.connection_status}`);
 }
 
 async function startMap() {
@@ -79,7 +80,7 @@ async function startMap() {
 
 	sleep(UPDATE_INTERVAL_MS); // Start by sleeping, we already fetched data and updated map
 	// Update the map every `UPDATE_INTERVAL_MS` ms
-	setInterval(() => update(marker), UPDATE_INTERVAL_MS);
+	setInterval(() => update(marker, map), UPDATE_INTERVAL_MS);
 }
 
 startMap();
