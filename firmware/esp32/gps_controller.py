@@ -9,6 +9,7 @@ class GPSConfig:
     TX_PIN = 17
     RX_PIN = 16
     LOCAL_OFFSET = -5  # EST
+    RX_BUF = 1024
 
 
 class GPSController:
@@ -18,7 +19,11 @@ class GPSController:
             baudrate=GPSConfig.BAUDRATE,
             tx=GPSConfig.TX_PIN,
             rx=GPSConfig.RX_PIN,
+            rxbuf=GPSConfig.RX_BUF,
         )
+
+        # Initialize the asyncio StreamReader wrapping the UART
+        self._sreader = uasyncio.StreamReader(self._uart)  # type:ignore
 
         self._gps = MicropyGPS(
             local_offset=GPSConfig.LOCAL_OFFSET, location_formatting="dd"
@@ -58,26 +63,37 @@ class GPSController:
         return self._state
 
     async def run(self):
-        stream_reader = uasyncio.StreamReader(self._uart)  # type: ignore
-
         print("GPS Controller Started...")
 
         while True:
             try:
-                raw = await stream_reader.readline()
+                # Yields to the scheduler until at least 1 byte is available
+                data = await self._sreader.read(GPSConfig.RX_BUF)
 
-                if raw:
-                    sentence = raw.decode("utf-8")
-                    for char in sentence:
-                        # update returns a sentence type (e.g., '$GPRMC') if valid
-                        stat = self._gps.update(char)
-
-                        if stat:
-                            # A full sentence was parsed, update the internal state dictionary
-                            self._update_state()
+                for byte in data:
+                    stat = self._gps.update(chr(byte))
+                    if stat:
+                        self._update_state()
 
             except UnicodeError:
                 pass
             except Exception as e:
                 print(f"GPS Error: {e}")
                 await uasyncio.sleep(1)
+
+
+async def run_gps():
+    gps = GPSController()
+    uasyncio.create_task(gps.run())
+
+    while True:
+        print(gps.get_data())
+
+        await uasyncio.sleep(1)
+
+
+if __name__ == "__main__":
+    try:
+        uasyncio.run(run_gps())
+    except KeyboardInterrupt:
+        pass
