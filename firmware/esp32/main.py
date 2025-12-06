@@ -28,7 +28,10 @@ def load_env(path=ENV_PATH):
 env = load_env()
 WIFI_SSID = env.get("WIFI_SSID")
 WIFI_PASSWORD = env.get("WIFI_PASSWORD")
-PORT = int(env.get("API_PORT", 80))
+PORT = env.get("API_PORT")
+if not (WIFI_SSID and WIFI_PASSWORD and PORT):
+    raise RuntimeError("Incorrect .env file")
+PORT = int(PORT)
 
 gps_controller = GPSController()
 
@@ -40,7 +43,7 @@ def connect_wifi():
     """
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    wlan.config(dhcp_hostname="gps-tracker")  # Optional: easy to find on router
+    wlan.config(dhcp_hostname="gps-tracker")
 
     if not wlan.isconnected():
         print(f"Connecting to {WIFI_SSID}...")
@@ -101,10 +104,6 @@ async def handle_client(reader: StreamReader, writer: StreamWriter):
                     "latitude": raw_gps.get("latitude", 0.0),
                     "longitude": raw_gps.get("longitude", 0.0),
                     "velocity": raw_gps.get("speed_mph", 0),
-                    "course": raw_gps.get("course", 0),
-                    "altitude": raw_gps.get("altitude", 0),
-                    "satellites_used": raw_gps.get("satellites_used", 0),
-                    "battery": 100.0,
                 }
 
                 response_body = ujson.dumps(response_data)
